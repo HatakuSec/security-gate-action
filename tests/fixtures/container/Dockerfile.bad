@@ -1,0 +1,35 @@
+# Bad Dockerfile - contains violations of all DOCK rules
+# This file is used for testing the container scanner
+
+# DOCK001: Using latest tag (implicit)
+FROM node
+
+# DOCK007: Secret passed via ARG
+ARG API_KEY
+ARG DATABASE_PASSWORD=default
+
+# DOCK008: curl | sh pattern
+RUN curl -sSL https://example.com/install.sh | sh
+
+# DOCK004: sudo usage
+RUN sudo apt-get update && \
+    sudo apt-get install -y curl
+
+# DOCK005: ADD instead of COPY for local files
+ADD package.json /app/
+ADD src/ /app/src/
+
+# Run the app
+WORKDIR /app
+RUN npm install
+
+# DOCK001: explicit latest tag on second stage
+FROM python:latest AS builder
+
+RUN pip install requests
+
+# Note: Missing USER instruction = DOCK002
+# Note: Missing HEALTHCHECK = DOCK003
+# Note: No .dockerignore = DOCK006 (tested via context)
+
+CMD ["node", "index.js"]

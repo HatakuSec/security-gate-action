@@ -1,0 +1,289 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/owner/security-gate-action/schema/config.schema.json",
+  "title": "Security Gate Configuration",
+  "description": "Configuration schema for Security Gate GitHub Action. Use this schema to validate .security-gate.yml files.",
+  "type": "object",
+  "properties": {
+    "allowlist": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "expires": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1
+          },
+          "match": {
+            "type": "object",
+            "properties": {
+              "finding_id": {
+                "type": "string",
+                "maxLength": 200
+              },
+              "message_contains": {
+                "type": "string",
+                "maxLength": 100
+              },
+              "path_glob": {
+                "type": "string",
+                "maxLength": 300
+              },
+              "rule_id": {
+                "type": "string",
+                "maxLength": 64
+              },
+              "scanner": {
+                "type": "string",
+                "enum": [
+                  "secrets",
+                  "dependencies",
+                  "iac",
+                  "container"
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 1
+          }
+        },
+        "required": [
+          "id",
+          "reason"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 200
+    },
+    "exclude_paths": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 300,
+        "minLength": 1
+      },
+      "maxItems": 100
+    },
+    "fail_on": {
+      "type": "string",
+      "default": "high",
+      "enum": [
+        "high",
+        "medium",
+        "low"
+      ]
+    },
+    "ignore": {
+      "type": "object",
+      "properties": {
+        "paths": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 300,
+            "minLength": 1
+          },
+          "maxItems": 100
+        }
+      },
+      "additionalProperties": false
+    },
+    "mode": {
+      "type": "string",
+      "default": "auto",
+      "enum": [
+        "auto",
+        "explicit"
+      ]
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "type": {
+            "type": "string",
+            "default": "secret",
+            "enum": [
+              "secret"
+            ]
+          },
+          "allowlist": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "pattern": {
+                  "type": "string",
+                  "maxLength": 200,
+                  "minLength": 1
+                },
+                "reason": {
+                  "type": "string",
+                  "maxLength": 500,
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "pattern"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 50
+          },
+          "file_globs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 200,
+              "minLength": 1
+            },
+            "maxItems": 25
+          },
+          "flags": {
+            "type": "string",
+            "default": "g"
+          },
+          "id": {
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 3,
+            "pattern": "^[A-Z0-9_-]{3,32}$"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1
+          },
+          "regex": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 1
+          },
+          "severity": {
+            "type": "string",
+            "default": "medium",
+            "enum": [
+              "high",
+              "medium",
+              "low"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "regex"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 50
+    },
+    "scanners": {
+      "type": "object",
+      "properties": {
+        "container": {
+          "type": "object",
+          "properties": {
+            "dockerfile_paths": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          "additionalProperties": false,
+          "default": {
+            "enabled": true
+          }
+        },
+        "dependencies": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "ignore_cves": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false,
+          "default": {
+            "enabled": true
+          }
+        },
+        "iac": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "skip_checks": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false,
+          "default": {
+            "enabled": true
+          }
+        },
+        "secrets": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "exclude_paths": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "include_paths": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false,
+          "default": {
+            "enabled": true
+          }
+        }
+      },
+      "additionalProperties": false,
+      "default": {}
+    },
+    "version": {
+      "type": "string",
+      "default": "1"
+    }
+  },
+  "additionalProperties": false
+}

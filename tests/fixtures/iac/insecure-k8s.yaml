@@ -1,0 +1,63 @@
+# Insecure Kubernetes Deployment
+# This file contains deliberate security misconfigurations for testing
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: insecure-deployment
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: insecure-app
+  template:
+    metadata:
+      labels:
+        app: insecure-app
+    spec:
+      # Running as root - HIGH severity
+      containers:
+        - name: insecure-container
+          image: nginx:latest  # Using latest tag - MEDIUM severity
+          ports:
+            - containerPort: 80
+          securityContext:
+            # Privileged container - HIGH severity
+            privileged: true
+            # Running as root - HIGH severity
+            runAsUser: 0
+            # Allow privilege escalation - HIGH severity
+            allowPrivilegeEscalation: true
+            # Read-only root filesystem disabled - MEDIUM severity
+            readOnlyRootFilesystem: false
+          resources:
+            # No resource limits - MEDIUM severity
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+          # No liveness/readiness probes - LOW severity
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: insecure-service
+spec:
+  selector:
+    app: insecure-app
+  ports:
+    - port: 80
+      targetPort: 80
+  type: LoadBalancer
+---
+# Pod with host network - HIGH severity
+apiVersion: v1
+kind: Pod
+metadata:
+  name: host-network-pod
+spec:
+  hostNetwork: true
+  hostPID: true
+  containers:
+    - name: host-container
+      image: alpine
+      command: ["sleep", "3600"]

@@ -1,0 +1,29 @@
+# Security Gate — Minimal Workflow Example
+#
+# This is the simplest way to use Security Gate.
+# It uses all defaults: auto mode, fail on high severity.
+#
+# Copy this file to your repository at:
+#   .github/workflows/security-gate.yml
+
+name: Security Gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Security Gate
+        uses: HatakuSec/security-gate-action@v1.0.0
+        # For local testing, use:
+        # uses: ./

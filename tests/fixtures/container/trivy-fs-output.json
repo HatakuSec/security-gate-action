@@ -1,0 +1,129 @@
+{
+  "SchemaVersion": 2,
+  "ArtifactName": "/test/project",
+  "ArtifactType": "filesystem",
+  "Results": [
+    {
+      "Target": "Dockerfile",
+      "Class": "config",
+      "Type": "dockerfile",
+      "Misconfigurations": [
+        {
+          "Type": "Dockerfile Security Check",
+          "ID": "DS002",
+          "AVDID": "AVD-DS-0002",
+          "Title": "Image user should not be 'root'",
+          "Description": "Running as root is not recommended for security reasons.",
+          "Message": "Specify a user other than 'root' to run the container as.",
+          "Namespace": "builtin.dockerfile.DS002",
+          "Query": "data.builtin.dockerfile.DS002.deny",
+          "Resolution": "Add a USER instruction to run as non-root",
+          "Severity": "HIGH",
+          "PrimaryURL": "https://avd.aquasec.com/misconfig/ds002",
+          "References": [
+            "https://avd.aquasec.com/misconfig/ds002"
+          ],
+          "Status": "FAIL",
+          "CauseMetadata": {
+            "Provider": "dockerfile",
+            "Service": "general",
+            "StartLine": 1,
+            "EndLine": 1,
+            "Code": {
+              "Lines": [
+                {
+                  "Number": 1,
+                  "Content": "FROM node:latest",
+                  "IsCause": true,
+                  "FirstCause": true,
+                  "LastCause": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "Type": "Dockerfile Security Check",
+          "ID": "DS026",
+          "AVDID": "AVD-DS-0026",
+          "Title": "No HEALTHCHECK instruction",
+          "Description": "Ensure that HEALTHCHECK is added to the container specification.",
+          "Message": "Add HEALTHCHECK instruction",
+          "Namespace": "builtin.dockerfile.DS026",
+          "Query": "data.builtin.dockerfile.DS026.deny",
+          "Resolution": "Add a HEALTHCHECK instruction",
+          "Severity": "LOW",
+          "PrimaryURL": "https://avd.aquasec.com/misconfig/ds026",
+          "References": [
+            "https://avd.aquasec.com/misconfig/ds026"
+          ],
+          "Status": "FAIL",
+          "CauseMetadata": {
+            "Provider": "dockerfile",
+            "Service": "general",
+            "StartLine": 1,
+            "EndLine": 15
+          }
+        },
+        {
+          "Type": "Dockerfile Security Check",
+          "ID": "DS001",
+          "AVDID": "AVD-DS-0001",
+          "Title": "':latest' tag used",
+          "Description": "When using a 'FROM' statement you should use a specific tag to avoid uncontrolled behavior.",
+          "Message": "Avoid using ':latest' tag",
+          "Namespace": "builtin.dockerfile.DS001",
+          "Query": "data.builtin.dockerfile.DS001.deny",
+          "Resolution": "Use a specific version tag",
+          "Severity": "MEDIUM",
+          "PrimaryURL": "https://avd.aquasec.com/misconfig/ds001",
+          "References": [
+            "https://avd.aquasec.com/misconfig/ds001"
+          ],
+          "Status": "PASS"
+        }
+      ]
+    },
+    {
+      "Target": "package-lock.json",
+      "Class": "lang-pkgs",
+      "Type": "npm",
+      "Vulnerabilities": [
+        {
+          "VulnerabilityID": "CVE-2022-12345",
+          "PkgID": "lodash@4.17.20",
+          "PkgName": "lodash",
+          "InstalledVersion": "4.17.20",
+          "FixedVersion": "4.17.21",
+          "Status": "fixed",
+          "Layer": {},
+          "SeveritySource": "nvd",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2022-12345",
+          "Title": "Prototype Pollution in lodash",
+          "Description": "Prototype pollution vulnerability in lodash before 4.17.21.",
+          "Severity": "HIGH",
+          "References": [
+            "https://nvd.nist.gov/vuln/detail/CVE-2022-12345"
+          ]
+        },
+        {
+          "VulnerabilityID": "CVE-2022-67890",
+          "PkgID": "express@4.17.0",
+          "PkgName": "express",
+          "InstalledVersion": "4.17.0",
+          "FixedVersion": "4.18.2",
+          "Status": "fixed",
+          "Layer": {},
+          "SeveritySource": "nvd",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2022-67890",
+          "Title": "Open Redirect in express",
+          "Description": "Open redirect vulnerability in express before 4.18.2.",
+          "Severity": "MEDIUM",
+          "References": [
+            "https://nvd.nist.gov/vuln/detail/CVE-2022-67890"
+          ]
+        }
+      ]
+    }
+  ]
+}

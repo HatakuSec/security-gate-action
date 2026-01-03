@@ -1,0 +1,61 @@
+name: 'Security Gate Action'
+description: 'Multi-scanner security analysis: secrets, dependencies, IaC, and containers with configurable policy enforcement.'
+author: 'HatakuSec'
+
+branding:
+  icon: 'shield'
+  color: 'blue'
+
+inputs:
+  config_path:
+    description: 'Path to the Security Gate configuration file (relative to repository root)'
+    required: false
+    default: '.security-gate.yml'
+
+  fail_on:
+    description: 'Minimum severity level that will cause the action to fail. Options: high, medium, low'
+    required: false
+    default: 'high'
+
+  mode:
+    description: 'Scanner mode. "auto" detects and runs relevant scanners; "explicit" only runs scanners enabled in config'
+    required: false
+    default: 'auto'
+
+  verbose:
+    description: 'Enable verbose debug logging (secrets are still masked)'
+    required: false
+    default: 'false'
+
+  working_directory:
+    description: 'Directory to scan (relative to repository root). Useful for monorepos'
+    required: false
+    default: '.'
+
+  sarif_output:
+    description: 'Path to write SARIF output file. If not set, SARIF output is disabled'
+    required: false
+    default: ''
+
+outputs:
+  findings_count:
+    description: 'Total number of security findings detected'
+
+  high_count:
+    description: 'Number of high-severity findings'
+
+  medium_count:
+    description: 'Number of medium-severity findings'
+
+  low_count:
+    description: 'Number of low-severity findings'
+
+  passed:
+    description: 'Whether the security gate passed (true/false)'
+
+  sarif_path:
+    description: 'Path to SARIF output file (if enabled)'
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'

@@ -1,0 +1,44 @@
+# Security Gate — Strict Workflow Example
+#
+# This workflow uses strict settings:
+# - Fails on any finding (low, medium, or high)
+# - Uses verbose logging for debugging
+#
+# Copy this file to your repository at:
+#   .github/workflows/security-gate.yml
+
+name: Security Gate (Strict)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  security-scan:
+    name: Security Scan (Strict)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Security Gate
+        id: security-gate
+        uses: HatakuSec/security-gate-action@v1.0.0
+        # For local testing, use:
+        # uses: ./
+        with:
+          fail_on: low      # Fail on ANY severity
+          verbose: true     # Enable debug logging
+
+      - name: Display results
+        if: always()
+        run: |
+          echo "## Security Gate Results"
+          echo "- Total findings: ${{ steps.security-gate.outputs.findings_count }}"
+          echo "- High: ${{ steps.security-gate.outputs.high_count }}"
+          echo "- Medium: ${{ steps.security-gate.outputs.medium_count }}"
+          echo "- Low: ${{ steps.security-gate.outputs.low_count }}"
+          echo "- Passed: ${{ steps.security-gate.outputs.passed }}"

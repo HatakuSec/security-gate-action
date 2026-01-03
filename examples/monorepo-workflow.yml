@@ -1,0 +1,53 @@
+# Security Gate — Monorepo Workflow Example
+#
+# This workflow demonstrates scanning a specific subdirectory,
+# useful for monorepo setups where different packages need
+# separate security scans.
+#
+# Copy this file to your repository at:
+#   .github/workflows/security-gate.yml
+
+name: Security Gate (Monorepo)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  scan-backend:
+    name: Scan Backend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Security Gate on backend
+        uses: HatakuSec/security-gate-action@v1.0.0
+        with:
+          working_directory: packages/backend
+
+  scan-frontend:
+    name: Scan Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Security Gate on frontend
+        uses: HatakuSec/security-gate-action@v1.0.0
+        with:
+          working_directory: packages/frontend
+
+  scan-infrastructure:
+    name: Scan Infrastructure
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Security Gate on infrastructure
+        uses: HatakuSec/security-gate-action@v1.0.0
+        with:
+          working_directory: infrastructure

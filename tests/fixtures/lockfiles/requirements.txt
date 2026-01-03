@@ -1,0 +1,29 @@
+# Python requirements file for testing
+# Various formats and edge cases
+
+# Pinned versions
+flask==2.3.2
+requests==2.31.0
+django==4.2.1
+
+# Range specifiers
+numpy>=1.24.0,<2.0.0
+pandas>=2.0.0
+
+# With extras
+requests[security]==2.31.0
+celery[redis,auth]==5.3.0
+
+# Editable/VCS (should be skipped)
+-e git+https://github.com/example/package.git#egg=example-package
+
+# Comments and empty lines should be ignored
+
+# URL-based (should be skipped)
+https://example.com/package.tar.gz
+
+# Environment markers
+pywin32==306; sys_platform == 'win32'
+
+# Simple without version (should be skipped - no version)
+some-package-without-version

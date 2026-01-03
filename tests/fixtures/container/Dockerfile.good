@@ -1,0 +1,40 @@
+# Good Dockerfile - follows all security best practices
+# This file should pass all DOCK rules
+
+# DOCK001: ✅ Pinned version
+FROM node:20.10.0-alpine AS builder
+
+# Build stage
+WORKDIR /app
+
+# DOCK005: ✅ Using COPY instead of ADD
+COPY package*.json ./
+RUN npm ci --only=production
+
+COPY src/ ./src/
+
+# Production stage with minimal image
+FROM node:20.10.0-alpine
+
+# DOCK002: ✅ Non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nextjs -u 1001
+
+# Set working directory
+WORKDIR /app
+
+# Copy from builder stage
+COPY --from=builder --chown=nextjs:nodejs /app ./
+
+# DOCK002: ✅ Switch to non-root user
+USER nextjs
+
+# Expose port
+EXPOSE 3000
+
+# DOCK003: ✅ Healthcheck present
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node healthcheck.js || exit 1
+
+# Start the app
+CMD ["node", "server.js"]

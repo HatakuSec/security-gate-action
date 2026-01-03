@@ -1,0 +1,48 @@
+# Dependencies
+node_modules/
+
+# Build output
+# Note: dist/ is committed for GitHub Action distribution
+# dist/
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*.swn
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment files
+.env
+.env.*
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Package manager locks (we commit package-lock.json)
+# Note: test fixtures in tests/fixtures/lockfiles/ are force-added
+yarn.lock
+pnpm-lock.yaml
+
+# But allow test fixture lockfiles
+!tests/fixtures/lockfiles/yarn.lock

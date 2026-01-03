@@ -1,0 +1,280 @@
+{
+  "SchemaVersion": 2,
+  "CreatedAt": "2026-01-02T12:00:00.000000Z",
+  "ArtifactName": "tests/fixtures/iac",
+  "ArtifactType": "filesystem",
+  "Results": [
+    {
+      "Target": "insecure-s3.tf",
+      "Class": "config",
+      "Type": "terraform",
+      "MisconfSummary": {
+        "Successes": 2,
+        "Failures": 4,
+        "Exceptions": 0
+      },
+      "Misconfigurations": [
+        {
+          "Type": "Terraform Security Check",
+          "ID": "AVD-AWS-0086",
+          "AVDID": "AVD-AWS-0086",
+          "Title": "S3 Access block should block public ACLs",
+          "Description": "S3 buckets should block public ACLs on buckets and any objects they contain.",
+          "Message": "Bucket has public access block disabled",
+          "Namespace": "builtin.aws.s3.aws0086",
+          "Query": "data.builtin.aws.s3.aws0086.deny",
+          "Resolution": "Enable blocking any public ACL on the bucket and any object it contains.",
+          "Severity": "HIGH",
+          "PrimaryURL": "https://avd.aquasec.com/misconfig/avd-aws-0086",
+          "References": [
+            "https://avd.aquasec.com/misconfig/avd-aws-0086",
+            "https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-control-block-public-access.html"
+          ],
+          "Status": "FAIL",
+          "CauseMetadata": {
+            "Resource": "aws_s3_bucket.public_bucket",
+            "Provider": "aws",
+            "Service": "s3",
+            "StartLine": 5,
+            "EndLine": 14,
+            "Code": {
+              "Lines": [
+                {
+                  "Number": 5,
+                  "Content": "resource \"aws_s3_bucket\" \"public_bucket\" {",
+                  "IsCause": true,
+                  "FirstCause": true,
+                  "LastCause": false
+                },
+                {
+                  "Number": 6,
+                  "Content": "  bucket = \"my-public-bucket\"",
+                  "IsCause": true,
+                  "FirstCause": false,
+                  "LastCause": false
+                },
+                {
+                  "Number": 7,
+                  "Content": "  acl    = \"public-read\"",
+                  "IsCause": true,
+                  "FirstCause": false,
+                  "LastCause": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "Type": "Terraform Security Check",
+          "ID": "AVD-AWS-0088",
+          "AVDID": "AVD-AWS-0088",
+          "Title": "S3 Bucket does not have encryption enabled",
+          "Description": "S3 Buckets should be encrypted to protect the data that is stored within them.",
+          "Message": "Bucket does not have encryption enabled",
+          "Namespace": "builtin.aws.s3.aws0088",
+          "Query": "data.builtin.aws.s3.aws0088.deny",
+          "Resolution": "Configure bucket encryption using a CMK or AES256.",
+          "Severity": "MEDIUM",
+          "PrimaryURL": "https://avd.aquasec.com/misconfig/avd-aws-0088",
+          "References": [
+            "https://avd.aquasec.com/misconfig/avd-aws-0088"
+          ],
+          "Status": "FAIL",
+          "CauseMetadata": {
+            "Resource": "aws_s3_bucket.unencrypted_bucket",
+            "Provider": "aws",
+            "Service": "s3",
+            "StartLine": 17,
+            "EndLine": 24
+          }
+        },
+        {
+          "Type": "Terraform Security Check",
+          "ID": "AVD-AWS-0132",
+          "AVDID": "AVD-AWS-0132",
+          "Title": "Security group rule allows ingress from public internet",
+          "Description": "Opening up ports to the public internet is generally to be avoided. You should restrict access to IP addresses or ranges that explicitly require it where possible.",
+          "Message": "Security group rule allows ingress from 0.0.0.0/0",
+          "Namespace": "builtin.aws.ec2.aws0132",
+          "Query": "data.builtin.aws.ec2.aws0132.deny",
+          "Resolution": "Restrict the ingress to specific CIDR blocks.",
+          "Severity": "HIGH",
+          "PrimaryURL": "https://avd.aquasec.com/misconfig/avd-aws-0132",
+          "References": [
+            "https://avd.aquasec.com/misconfig/avd-aws-0132"
+          ],
+          "Status": "FAIL",
+          "CauseMetadata": {
+            "Resource": "aws_security_group.wide_open",
+            "Provider": "aws",
+            "Service": "ec2",
+            "StartLine": 44,
+            "EndLine": 60
+          }
+        },
+        {
+          "Type": "Terraform Security Check",
+          "ID": "AVD-AWS-0080",
+          "AVDID": "AVD-AWS-0080",
+          "Title": "RDS encryption not enabled",
+          "Description": "RDS storage should be encrypted to protect data at rest.",
+          "Message": "RDS instance storage encryption is disabled",
+          "Namespace": "builtin.aws.rds.aws0080",
+          "Query": "data.builtin.aws.rds.aws0080.deny",
+          "Resolution": "Enable storage encryption.",
+          "Severity": "HIGH",
+          "PrimaryURL": "https://avd.aquasec.com/misconfig/avd-aws-0080",
+          "References": [
+            "https://avd.aquasec.com/misconfig/avd-aws-0080"
+          ],
+          "Status": "FAIL",
+          "CauseMetadata": {
+            "Resource": "aws_db_instance.unencrypted_rds",
+            "Provider": "aws",
+            "Service": "rds",
+            "StartLine": 63,
+            "EndLine": 75
+          }
+        }
+      ]
+    },
+    {
+      "Target": "insecure-k8s.yaml",
+      "Class": "config",
+      "Type": "kubernetes",
+      "MisconfSummary": {
+        "Successes": 0,
+        "Failures": 5,
+        "Exceptions": 0
+      },
+      "Misconfigurations": [
+        {
+          "Type": "Kubernetes Security Check",
+          "ID": "KSV001",
+          "AVDID": "AVD-KSV-0001",
+          "Title": "Container is privileged",
+          "Description": "A privileged container has all the capabilities of the host machine, which allows nearly full access to the host.",
+          "Message": "Container 'insecure-container' of Deployment 'insecure-deployment' should not be privileged",
+          "Namespace": "builtin.kubernetes.KSV001",
+          "Query": "data.builtin.kubernetes.KSV001.deny",
+          "Resolution": "Change 'privileged' to 'false'.",
+          "Severity": "HIGH",
+          "PrimaryURL": "https://avd.aquasec.com/misconfig/ksv001",
+          "References": [
+            "https://kubernetes.io/docs/concepts/security/pod-security-standards/#restricted"
+          ],
+          "Status": "FAIL",
+          "CauseMetadata": {
+            "Resource": "Deployment/insecure-deployment",
+            "Provider": "kubernetes",
+            "StartLine": 1,
+            "EndLine": 40
+          }
+        },
+        {
+          "Type": "Kubernetes Security Check",
+          "ID": "KSV003",
+          "AVDID": "AVD-KSV-0003",
+          "Title": "Container runs as root",
+          "Description": "Container is running as root, which poses a security risk.",
+          "Message": "Container 'insecure-container' of Deployment 'insecure-deployment' should not run as root",
+          "Namespace": "builtin.kubernetes.KSV003",
+          "Query": "data.builtin.kubernetes.KSV003.deny",
+          "Resolution": "Set 'runAsNonRoot' to true.",
+          "Severity": "HIGH",
+          "PrimaryURL": "https://avd.aquasec.com/misconfig/ksv003",
+          "References": [
+            "https://kubernetes.io/docs/concepts/security/pod-security-standards/#restricted"
+          ],
+          "Status": "FAIL",
+          "CauseMetadata": {
+            "Resource": "Deployment/insecure-deployment",
+            "Provider": "kubernetes",
+            "StartLine": 1,
+            "EndLine": 40
+          }
+        },
+        {
+          "Type": "Kubernetes Security Check",
+          "ID": "KSV014",
+          "AVDID": "AVD-KSV-0014",
+          "Title": "Using latest tag for image",
+          "Description": "Using 'latest' tag for container images is discouraged as it can lead to unpredictable behaviour.",
+          "Message": "Container 'insecure-container' uses image tag 'latest'",
+          "Namespace": "builtin.kubernetes.KSV014",
+          "Query": "data.builtin.kubernetes.KSV014.deny",
+          "Resolution": "Use a specific image tag.",
+          "Severity": "MEDIUM",
+          "PrimaryURL": "https://avd.aquasec.com/misconfig/ksv014",
+          "References": [
+            "https://kubernetes.io/docs/concepts/containers/images/"
+          ],
+          "Status": "FAIL",
+          "CauseMetadata": {
+            "Resource": "Deployment/insecure-deployment",
+            "Provider": "kubernetes",
+            "StartLine": 21,
+            "EndLine": 21
+          }
+        },
+        {
+          "Type": "Kubernetes Security Check",
+          "ID": "KSV009",
+          "AVDID": "AVD-KSV-0009",
+          "Title": "Host network enabled",
+          "Description": "Sharing the host's network namespace permits processes in the pod to communicate with processes bound to the host's loopback adapter.",
+          "Message": "Pod 'host-network-pod' should not enable host network",
+          "Namespace": "builtin.kubernetes.KSV009",
+          "Query": "data.builtin.kubernetes.KSV009.deny",
+          "Resolution": "Do not set 'hostNetwork' to true.",
+          "Severity": "HIGH",
+          "PrimaryURL": "https://avd.aquasec.com/misconfig/ksv009",
+          "References": [
+            "https://kubernetes.io/docs/concepts/security/pod-security-standards/#baseline"
+          ],
+          "Status": "FAIL",
+          "CauseMetadata": {
+            "Resource": "Pod/host-network-pod",
+            "Provider": "kubernetes",
+            "StartLine": 52,
+            "EndLine": 63
+          }
+        },
+        {
+          "Type": "Kubernetes Security Check",
+          "ID": "KSV010",
+          "AVDID": "AVD-KSV-0010",
+          "Title": "Host PID enabled",
+          "Description": "Sharing the host's PID namespace allows processes to view and interact with host processes.",
+          "Message": "Pod 'host-network-pod' should not enable host PID",
+          "Namespace": "builtin.kubernetes.KSV010",
+          "Query": "data.builtin.kubernetes.KSV010.deny",
+          "Resolution": "Do not set 'hostPID' to true.",
+          "Severity": "HIGH",
+          "PrimaryURL": "https://avd.aquasec.com/misconfig/ksv010",
+          "References": [
+            "https://kubernetes.io/docs/concepts/security/pod-security-standards/#baseline"
+          ],
+          "Status": "FAIL",
+          "CauseMetadata": {
+            "Resource": "Pod/host-network-pod",
+            "Provider": "kubernetes",
+            "StartLine": 52,
+            "EndLine": 63
+          }
+        }
+      ]
+    },
+    {
+      "Target": "secure.tf",
+      "Class": "config",
+      "Type": "terraform",
+      "MisconfSummary": {
+        "Successes": 10,
+        "Failures": 0,
+        "Exceptions": 0
+      },
+      "Misconfigurations": []
+    }
+  ]
+}

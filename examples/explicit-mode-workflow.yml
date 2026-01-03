@@ -1,0 +1,51 @@
+# Security Gate — Explicit Scanner Selection Example
+#
+# This workflow demonstrates explicit mode, where you choose
+# exactly which scanners to run via configuration.
+#
+# Requires a .security-gate.yml config file (see below).
+#
+# Copy this file to your repository at:
+#   .github/workflows/security-gate.yml
+
+name: Security Gate (Explicit Mode)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  security-scan:
+    name: Security Scan (Explicit)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Security Gate
+        uses: HatakuSec/security-gate-action@v1.0.0
+        # For local testing, use:
+        # uses: ./
+        with:
+          mode: explicit
+          # Optionally specify a custom config path:
+          # config_path: .security-gate.yml
+
+# Example .security-gate.yml for explicit mode:
+# 
+# version: '1'
+# mode: explicit
+# fail_on: high
+# 
+# scanners:
+#   secrets:
+#     enabled: true
+#   dependencies:
+#     enabled: true
+#   iac:
+#     enabled: false  # Disable IaC scanning
+#   container:
+#     enabled: false  # Disable container scanning

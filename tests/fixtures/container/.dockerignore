@@ -1,0 +1,29 @@
+# Docker build context exclusions
+# Used for testing DOCK006 rule
+
+# Dependencies
+node_modules/
+npm-debug.log
+
+# Build outputs
+dist/
+build/
+*.log
+
+# Development files
+.git/
+.gitignore
+.env
+.env.*
+*.md
+Dockerfile*
+docker-compose*.yml
+
+# IDE
+.vscode/
+.idea/
+
+# Testing
+coverage/
+*.test.js
+*.spec.js

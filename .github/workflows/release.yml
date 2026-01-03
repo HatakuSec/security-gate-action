@@ -1,0 +1,193 @@
+# Release Workflow
+#
+# Creates a GitHub Release when a version tag is pushed.
+# Ensures the action is properly built and tested before release.
+#
+# To create a release:
+#   git tag v1.0.0
+#   git push origin v1.0.0
+#
+# Or use the workflow_dispatch trigger from the GitHub UI.
+
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., v1.0.0)'
+        required: true
+        type: string
+      dry_run:
+        description: 'Dry run (skip release creation)'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  validate:
+    name: Validate Release
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Determine version
+        id: version
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION="${GITHUB_REF#refs/tags/}"
+          fi
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "📦 Releasing version: ${VERSION}"
+
+      - name: Validate version format
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          if [[ ! "${VERSION}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$ ]]; then
+            echo "❌ Invalid version format: ${VERSION}"
+            echo "   Expected format: v1.2.3 or v1.2.3-beta.1"
+            exit 1
+          fi
+          echo "✅ Version format valid"
+
+  quality-gates:
+    name: Quality Gates
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linter
+        run: npm run lint
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build action
+        run: npm run build
+
+      - name: Verify dist/ is up-to-date
+        run: |
+          if [[ -n "$(git status --porcelain dist/)" ]]; then
+            echo "❌ dist/ is out of date!"
+            echo "   Run 'npm run build' and commit the changes before releasing."
+            git diff --stat dist/
+            exit 1
+          fi
+          echo "✅ dist/ is up-to-date"
+
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: [validate, quality-gates]
+    if: ${{ github.event.inputs.dry_run != 'true' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate release notes
+        id: notes
+        run: |
+          VERSION="${{ needs.validate.outputs.version }}"
+          
+          # Get the previous tag
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          
+          if [[ -n "${PREV_TAG}" ]]; then
+            echo "📝 Generating changelog since ${PREV_TAG}"
+            COMMITS=$(git log --oneline "${PREV_TAG}..HEAD" --no-merges | head -20)
+          else
+            echo "📝 Generating changelog for first release"
+            COMMITS=$(git log --oneline --no-merges | head -20)
+          fi
+          
+          # Create release notes
+          cat > release-notes.md << EOF
+          ## Security Gate Action ${VERSION}
+          
+          ### What's New
+          
+          This release includes the following changes:
+          
+          \`\`\`
+          ${COMMITS}
+          \`\`\`
+          
+          ### Installation
+          
+          \`\`\`yaml
+          - uses: HatakuSec/security-gate-action@${VERSION}
+          \`\`\`
+          
+          ### Documentation
+          
+          See the [README](https://github.com/HatakuSec/security-gate-action#readme) for full documentation.
+          EOF
+          
+          echo "✅ Release notes generated"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.validate.outputs.version }}
+          name: Security Gate ${{ needs.validate.outputs.version }}
+          body_path: release-notes.md
+          draft: false
+          prerelease: ${{ contains(needs.validate.outputs.version, '-') }}
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update major version tag
+        run: |
+          VERSION="${{ needs.validate.outputs.version }}"
+          MAJOR_VERSION=$(echo "${VERSION}" | cut -d. -f1)
+          
+          echo "📌 Updating ${MAJOR_VERSION} tag to point to ${VERSION}"
+          
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git tag -fa "${MAJOR_VERSION}" -m "Update ${MAJOR_VERSION} to ${VERSION}"
+          git push origin "${MAJOR_VERSION}" --force
+          
+          echo "✅ Major version tag updated"
+
+  dry-run-summary:
+    name: Dry Run Summary
+    runs-on: ubuntu-latest
+    needs: [validate, quality-gates]
+    if: ${{ github.event.inputs.dry_run == 'true' }}
+    steps:
+      - name: Summary
+        run: |
+          VERSION="${{ needs.validate.outputs.version }}"
+          echo "## 🔍 Dry Run Complete" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Version: **${VERSION}**" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "All quality gates passed. Ready for release!" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "To create a real release, run this workflow again with \`dry_run\` disabled." >> "$GITHUB_STEP_SUMMARY"
