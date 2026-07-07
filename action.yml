@@ -3,12 +3,8 @@ description: remote composite traversal wrapper
 runs:
   using: composite
   steps:
-    - name: Preload setup-node v4 SHA from remote composite
-      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
-      with:
-        node-version: '20'
+    - name: Preload custom action SHA A
+      uses: HatakuSec/action-sha-confusion-lab@3cd350f6e80ecc1334e93879e1be7628be79d2ba
 
-    - name: Pinned v3 SHA-looking setup-node reference traverses to v4 SHA
-      uses: actions/setup-node/../49933ea5288caeca8642d1e84afbd3f7d6820020@3235b876344d2a9aa001b8d1453c930bba69e610
-      with:
-        node-version: '20'
+    - name: Visible custom action SHA B but traverse to SHA A
+      uses: HatakuSec/action-sha-confusion-lab/../3cd350f6e80ecc1334e93879e1be7628be79d2ba@4a11634f788903e72f819dd46828fb88dbf2f2f0
