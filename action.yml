@@ -3,12 +3,12 @@ description: remote composite traversal wrapper
 runs:
   using: composite
   steps:
-    - name: Preload setup-node from remote composite
+    - name: Preload setup-node v4 from remote composite
       uses: actions/setup-node@v4
       with:
         node-version: '20'
 
-    - name: Traversed checkout path into setup-node from remote composite
-      uses: actions/checkout/../../setup-node/v4@v4
+    - name: Pinned SHA-looking setup-node reference traverses to v4
+      uses: actions/setup-node/../v4@3235b876344d2a9aa001b8d1453c930bba69e610
       with:
         node-version: '20'
